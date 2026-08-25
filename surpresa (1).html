@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sua Surpresa — Emagrecentro Araruama</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap');
+
+  :root{
+    --teal-deep:   #0F3B36;
+    --teal-line:   #1C5850;
+    --ivory:       #FBF3E7;
+    --gold:        #C9A227;
+    --gold-soft:   #E4C866;
+    --coral:       #E8734A;
+    --ink:         #123832;
+    --ink-soft:    #4C6B65;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(228,200,102,0.10), transparent 55%),
+      radial-gradient(ellipse at 100% 110%, rgba(232,115,74,0.08), transparent 50%),
+      var(--teal-deep);
+    font-family:'Work Sans', sans-serif;
+    color:var(--ink);
+    padding:24px 16px;
+    overflow-x:hidden;
+  }
+
+  .stage{
+    width:100%;
+    max-width:400px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .eyebrow{
+    color:var(--gold-soft);
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    font-size:11px;
+    font-weight:600;
+    margin-bottom:10px;
+    text-align:center;
+  }
+
+  .clinic{
+    color:var(--ivory);
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:22px;
+    text-align:center;
+    margin:0 0 26px;
+    letter-spacing:0.01em;
+  }
+
+  /* ---- Ticket ---- */
+  .ticket{
+    position:relative;
+    width:100%;
+    background:var(--ivory);
+    border-radius:20px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.55);
+    overflow:visible;
+  }
+
+  .ticket-top{
+    padding:26px 26px 22px;
+    text-align:center;
+  }
+
+  .ticket-kicker{
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+
+  .ticket-title{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:26px;
+    line-height:1.15;
+    color:var(--teal-deep);
+    margin:0 0 6px;
+  }
+
+  .ticket-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  /* perforation divider */
+  .perf{
+    position:relative;
+    height:0;
+    border-top:2px dashed rgba(18,56,50,0.22);
+    margin:0 22px;
+  }
+  .perf::before, .perf::after{
+    content:'';
+    position:absolute;
+    top:-11px;
+    width:22px; height:22px;
+    background:var(--teal-deep);
+    border-radius:50%;
+  }
+  .perf::before{ left:-33px; }
+  .perf::after{ right:-33px; }
+
+  .ticket-bottom{
+    padding:28px 26px 30px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .scratch-wrap{
+    position:relative;
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    margin:4px 0 18px;
+  }
+
+  .prize-face{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:linear-gradient(145deg, #fff, #f4ead9);
+    border:3px solid var(--gold);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:18px;
+  }
+
+  .prize-label{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:20px;
+    line-height:1.2;
+    color:var(--teal-deep);
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .prize-label.show{ opacity:1; transform:translateY(0); }
+
+  canvas#scratch{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    cursor:pointer;
+    touch-action:none;
+  }
+
+  .hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    text-align:center;
+    margin:0 0 4px;
+    min-height:18px;
+  }
+
+  .reveal-caption{
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--coral);
+    font-weight:700;
+    opacity:0;
+    transition:opacity .5s ease;
+    margin-bottom:2px;
+  }
+  .reveal-caption.show{ opacity:1; }
+
+  .fallback-btn{
+    margin-top:8px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    font-size:12px;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:6px;
+  }
+
+  .again-btn{
+    margin-top:16px;
+    background:var(--teal-deep);
+    color:var(--ivory);
+    border:none;
+    border-radius:999px;
+    padding:11px 22px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(4px);
+    transition:opacity .4s ease, transform .4s ease;
+  }
+  .again-btn.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .again-btn:not(.show){ pointer-events:none; }
+
+  .footer-note{
+    color:rgba(251,243,231,0.55);
+    font-size:11px;
+    text-align:center;
+    margin-top:22px;
+    letter-spacing:0.02em;
+  }
+
+  canvas#confetti{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:50;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .prize-label, .again-btn, .reveal-caption{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<div class="stage">
+  <div class="eyebrow">Programa de Indicação</div>
+  <p class="clinic">Emagrecentro Araruama</p>
+
+  <div class="ticket">
+    <div class="ticket-top">
+      <div class="ticket-kicker">Você indicou 5 amigos</div>
+      <h1 class="ticket-title">Chegou a hora da sua surpresa</h1>
+      <p class="ticket-sub">Passe o dedo sobre o círculo dourado para raspar</p>
+    </div>
+
+    <div class="perf"></div>
+
+    <div class="ticket-bottom">
+      <p class="reveal-caption" id="revealCaption">Você ganhou</p>
+      <div class="scratch-wrap">
+        <div class="prize-face">
+          <span class="prize-label" id="prizeLabel"></span>
+        </div>
+        <canvas id="scratch"></canvas>
+      </div>
+      <p class="hint" id="hint">arraste para raspar</p>
+      <button class="fallback-btn" id="fallbackBtn" type="button">não consigo raspar — toque aqui</button>
+    </div>
+  </div>
+
+  <p class="footer-note">Válido apenas na recepção da clínica</p>
+</div>
+
+<script>
+(function(){
+  var PRIZES = ["Aurículo", "Power", "Lipo-injection", "Carbox", "Corrente", "Lipocavitação"];
+
+  var scratchCanvas = document.getElementById('scratch');
+  var ctx = scratchCanvas.getContext('2d');
+  var prizeLabel = document.getElementById('prizeLabel');
+  var hint = document.getElementById('hint');
+  var revealCaption = document.getElementById('revealCaption');
+  var fallbackBtn = document.getElementById('fallbackBtn');
+  var wrap = document.querySelector('.scratch-wrap');
+
+  var revealed = false;
+  var currentPrize = '';
+  var dpr = Math.max(window.devicePixelRatio || 1, 1);
+
+  function pickPrize(){
+    return PRIZES[Math.floor(Math.random() * PRIZES.length)];
+  }
+
+  function sizeCanvas(){
+    var rect = wrap.getBoundingClientRect();
+    scratchCanvas.width = rect.width * dpr;
+    scratchCanvas.height = rect.height * dpr;
+    scratchCanvas.style.width = rect.width + 'px';
+    scratchCanvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    drawFoil(rect.width, rect.height);
+  }
+
+  function drawFoil(w, h){
+    // base gold gradient
+    var grad = ctx.createLinearGradient(0,0,w,h);
+    grad.addColorStop(0, '#E4C866');
+    grad.addColorStop(0.5, '#C9A227');
+    grad.addColorStop(1, '#B8901E');
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(w/2, h/2, Math.min(w,h)/2, 0, Math.PI*2);
+    ctx.fill();
+
+    // diagonal foil lines
+    ctx.save();
+    ctx.clip();
+    ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+    ctx.lineWidth = 2;
+    for (var x = -h; x < w + h; x += 9){
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + h, h);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // label text on foil
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '600 13px "Work Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('RASPE AQUI', w/2, h/2);
+  }
+
+  function newCard(){
+    revealed = false;
+    currentPrize = pickPrize();
+    prizeLabel.textContent = currentPrize;
+    prizeLabel.classList.remove('show');
+    revealCaption.classList.remove('show');
+    hint.textContent = 'arraste para raspar';
+    scratchCanvas.style.opacity = '1';
+    scratchCanvas.style.pointerEvents = 'auto';
+    sizeCanvas();
+  }
+
+  function scratchAt(clientX, clientY){
+    var rect = scratchCanvas.getBoundingClientRect();
+    var x = clientX - rect.left;
+    var y = clientY - rect.top;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 22, 0, Math.PI*2);
+    ctx.fill();
+    checkProgress();
+  }
+
+  function checkProgress(){
+    if (revealed) return;
+    var rect = wrap.getBoundingClientRect();
+    var w = rect.width, h = rect.height;
+    var sampleStep = 6;
+    var cleared = 0, total = 0;
+    var img = ctx.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height);
+    var data = img.data;
+    for (var y = 0; y < scratchCanvas.height; y += sampleStep * dpr){
+      for (var x = 0; x < scratchCanvas.width; x += sampleStep * dpr){
+        var i = (y * scratchCanvas.width + x) * 4;
+        total++;
+        if (data[i+3] < 40) cleared++;
+      }
+    }
+    hint.textContent = 'continue raspando…';
+    if (total > 0 && cleared / total > 0.55){
+      doReveal();
+    }
+  }
+
+  function doReveal(){
+    if (revealed) return;
+    revealed = true;
+    scratchCanvas.style.transition = 'opacity .5s ease';
+    scratchCanvas.style.opacity = '0';
+    scratchCanvas.style.pointerEvents = 'none';
+    hint.textContent = '';
+    prizeLabel.classList.add('show');
+    revealCaption.classList.add('show');
+    burstConfetti();
+  }
+
+  // pointer / touch handling
+  var scratching = false;
+  function pos(e){
+    if (e.touches && e.touches.length) return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+    return {x:e.clientX, y:e.clientY};
+  }
+  function start(e){
+    if (revealed) return;
+    scratching = true;
+    var p = pos(e);
+    scratchAt(p.x, p.y);
+    e.preventDefault();
+  }
+  function move(e){
+    if (!scratching || revealed) return;
+    var p = pos(e);
+    scratchAt(p.x, p.y);
+    e.preventDefault();
+  }
+  function end(){ scratching = false; }
+
+  scratchCanvas.addEventListener('mousedown', start);
+  scratchCanvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  scratchCanvas.addEventListener('touchstart', start, {passive:false});
+  scratchCanvas.addEventListener('touchmove', move, {passive:false});
+  window.addEventListener('touchend', end);
+
+  fallbackBtn.addEventListener('click', doReveal);
+  window.addEventListener('resize', function(){ if(!revealed) sizeCanvas(); });
+
+  // ---- confetti ----
+  var confettiCanvas = document.getElementById('confetti');
+  var cctx = confettiCanvas.getContext('2d');
+  var particles = [];
+  var colors = ['#C9A227', '#E8734A', '#1C5850', '#FBF3E7'];
+
+  function sizeConfetti(){
+    confettiCanvas.width = window.innerWidth * dpr;
+    confettiCanvas.height = window.innerHeight * dpr;
+    confettiCanvas.style.width = window.innerWidth + 'px';
+    confettiCanvas.style.height = window.innerHeight + 'px';
+    cctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  sizeConfetti();
+  window.addEventListener('resize', sizeConfetti);
+
+  function burstConfetti(){
+    var cx = window.innerWidth/2, cy = window.innerHeight * 0.4;
+    for (var i=0; i<70; i++){
+      particles.push({
+        x: cx, y: cy,
+        vx: (Math.random()-0.5) * 9,
+        vy: (Math.random()* -7) - 2,
+        size: 4 + Math.random()*5,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        rot: Math.random()*Math.PI,
+        vr: (Math.random()-0.5) * 0.3,
+        life: 0
+      });
+    }
+    requestAnimationFrame(animateConfetti);
+  }
+
+  function animateConfetti(){
+    cctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+    var alive = false;
+    for (var i=0; i<particles.length; i++){
+      var p = particles[i];
+      if (p.life > 130) continue;
+      alive = true;
+      p.vy += 0.22;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life++;
+      cctx.save();
+      cctx.translate(p.x, p.y);
+      cctx.rotate(p.rot);
+      cctx.globalAlpha = Math.max(0, 1 - p.life/130);
+      cctx.fillStyle = p.color;
+      cctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      cctx.restore();
+    }
+    if (alive) requestAnimationFrame(animateConfetti);
+    else cctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+  }
+
+  newCard();
+})();
+</script>
+
+</body>
+</html>
